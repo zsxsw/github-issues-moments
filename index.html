@@ -360,11 +360,8 @@
         headers.append('Accept', 'application/vnd.github.v3+json');
         headers.append('User-Agent', 'Hugo Static Site Generator');
         
-        // 从环境变量获取GitHub Token
-        // 注意：在实际部署时，应该使用后端代理而不是直接在前端暴露Token
-        // 这里只是为了演示，实际使用时应该通过构建工具注入环境变量
-        const githubToken = process.env.GITHUB_TOKEN || ''; // 构建时替换为实际Token
-        
+        // 从Cloudflare Pages环境变量获取Token
+        const githubToken = window.env?.GITHUB_TOKEN || '';
         if (githubToken) {
             headers.append('Authorization', `token ${githubToken}`);
         }
@@ -399,7 +396,7 @@
                 let errorMsg = `⚠️ 无法获取动态：${err.message}`;
                 // 如果是403错误，提供更多帮助信息
                 if (err.message.includes('API请求受限')) {
-                    errorMsg += '<br><br>解决方案：<br>1. 在代码中添加GitHub Token<br>2. 或使用后端代理API请求';
+                    errorMsg += '<br><br>解决方案：<br>1. 在Cloudflare Pages设置中添加GITHUB_TOKEN环境变量<br>2. 或使用后端代理API请求';
                 }
                 container.innerHTML = `<p class="error">${errorMsg}</p>`;
             });
