@@ -60,7 +60,6 @@
         a:hover {
             text-decoration: underline;
         }
-        /* 导航栏 */
         nav {
             display: flex;
             align-items: center;
@@ -85,7 +84,6 @@
             height: 24px;
             fill: currentColor;
         }
-        /* 切换按钮 */
         #theme-toggle {
             cursor: pointer;
             background: transparent;
@@ -98,7 +96,6 @@
             align-items: center;
             gap: 6px;
         }
-        /* 朋友圈头图 - 电脑端优化 */
         .header-image {
             width: 100%;
             max-width: var(--content-max-width);
@@ -139,7 +136,6 @@
             cursor: pointer;
             font-size: 20px;
         }
-        /* 移动端适配 */
         @media (max-width: 640px) {
             .header-image {
                 border-radius: 0;
@@ -179,7 +175,6 @@
             font-size: 24px;
             cursor: pointer;
         }
-        /* 主区域 */
         main {
             max-width: var(--content-max-width);
             margin: 0 auto;
@@ -266,7 +261,6 @@
             font-size: 16px;
             color: var(--time-color);
         }
-        /* 分页样式 */
         .pagination {
             display: flex;
             justify-content: center;
@@ -295,19 +289,11 @@
             opacity: 0.5;
             cursor: not-allowed;
         }
-        /* Giscus 适配 */
         .giscus-container {
             max-width: var(--content-max-width);
             margin: 30px auto 0 auto;
             padding: 0 10px;
         }
-        .giscus-frame {
-            width: 100%;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid var(--border);
-        }
-        /* 加载动画 */
         .loading {
             display: flex;
             justify-content: center;
@@ -327,7 +313,6 @@
     </style>
 </head>
 <body>
-    <!-- 导航栏 -->
     <nav>
         <div class="nav-left">
             <svg class="icon" viewBox="0 0 16 16">
@@ -346,13 +331,11 @@
         </button>
     </nav>
 
-    <!-- 朋友圈头图 -->
     <div class="header-image">
         <div class="header-title">即刻短文</div>
         <div class="header-info" id="info-button">❗</div>
     </div>
 
-    <!-- 信息模态框 -->
     <div class="info-modal" id="info-modal">
         <div class="info-content">
             <div class="close-modal" id="close-modal">×</div>
@@ -361,52 +344,51 @@
         </div>
     </div>
 
-    <!-- 主内容 -->
     <main id="main-container">
         <div class="loading">
             <div class="loading-spinner"></div>
         </div>
     </main>
 
-    <!-- 分页容器 -->
     <div id="pagination-container" style="display: none;"></div>
 
-    <!-- Giscus 评论 -->
-    <div class="giscus-container">
-        <script src="https://giscus.app/client.js"
-                data-repo="zsxsw/github-issues-moments"
-                data-repo-id="R_kgDOP0jWOA"
-                data-category="Announcements"
-                data-category-id="DIC_kwDOP0jWOM4Cvv6S"
-                data-mapping="pathname"
-                data-strict="0"
-                data-reactions-enabled="1"
-                data-emit-metadata="0"
-                data-input-position="bottom"
-                data-theme="preferred_color_scheme"
-                data-lang="zh-CN"
-                crossorigin="anonymous"
-                async>
-        </script>
-    </div>
+    <div class="giscus-container"></div>
 
-    <!-- 主题切换 & 数据加载 -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
-        /* 1. 主题切换 */
+        /* ---------- 主题切换 + Giscus 重载 ---------- */
         const toggle = document.getElementById('theme-toggle');
         const themeIcon = document.getElementById('theme-icon');
         const html = document.documentElement;
 
-        // 初始化
-        (() => {
+        function loadGiscus(theme) {
+            const container = document.querySelector('.giscus-container');
+            container.innerHTML = '';
+            const script = document.createElement('script');
+            script.src = 'https://giscus.app/client.js';
+            script.async = true;
+            script.setAttribute('crossorigin', 'anonymous');
+            script.setAttribute('data-repo', 'zsxsw/github-issues-moments');
+            script.setAttribute('data-repo-id', 'R_kgDOP0jWOA');
+            script.setAttribute('data-category', 'Announcements');
+            script.setAttribute('data-category-id', 'DIC_kwDOP0jWOM4Cvv6S');
+            script.setAttribute('data-mapping', 'pathname');
+            script.setAttribute('data-strict', '0');
+            script.setAttribute('data-reactions-enabled', '1');
+            script.setAttribute('data-emit-metadata', '0');
+            script.setAttribute('data-input-position', 'top');
+            script.setAttribute('data-lang', 'zh-CN');
+            script.setAttribute('data-theme', theme);
+            container.appendChild(script);
+        }
+
+        (function initTheme() {
             const saved = localStorage.getItem('theme');
             const preferDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            if (saved === 'dark' || (!saved && preferDark)) {
-                html.setAttribute('data-theme', 'dark');
-                themeIcon.textContent = '☀️';
-            } else {
-                themeIcon.textContent = '🌙';
-            }
+            const initialTheme = (saved === 'dark' || (!saved && preferDark)) ? 'dark' : 'light';
+            html.setAttribute('data-theme', initialTheme);
+            themeIcon.textContent = initialTheme === 'dark' ? '☀️' : '🌙';
+            loadGiscus(initialTheme);
         })();
 
         toggle.addEventListener('click', () => {
@@ -415,41 +397,20 @@
             html.setAttribute('data-theme', next);
             localStorage.setItem('theme', next);
             themeIcon.textContent = next === 'dark' ? '☀️' : '🌙';
-            
-            // 同步 Giscus 主题
-            const frame = document.querySelector('iframe.giscus-frame');
-            if (frame) {
-                const msg = {
-                    giscus: {
-                        setConfig: {
-                            theme: next === 'dark' ? 'dark' : 'light'
-                        }
-                    }
-                };
-                frame.contentWindow.postMessage(msg, 'https://giscus.app');
-            }
+            loadGiscus(next);
         });
 
-        /* 2. 信息模态框交互 */
+        /* ---------- 信息模态框 ---------- */
         const infoButton = document.getElementById('info-button');
         const infoModal = document.getElementById('info-modal');
         const closeModal = document.getElementById('close-modal');
-
-        infoButton.addEventListener('click', () => {
-            infoModal.style.display = 'flex';
+        infoButton.addEventListener('click', () => infoModal.style.display = 'flex');
+        closeModal.addEventListener('click', () => infoModal.style.display = 'none');
+        infoModal.addEventListener('click', e => {
+            if (e.target === infoModal) infoModal.style.display = 'none';
         });
 
-        closeModal.addEventListener('click', () => {
-            infoModal.style.display = 'none';
-        });
-
-        infoModal.addEventListener('click', (e) => {
-            if (e.target === infoModal) {
-                infoModal.style.display = 'none';
-            }
-        });
-
-        /* 3. 拉取 GitHub 评论并分页 */
+        /* ---------- 数据加载 & 分页 ---------- */
         const container = document.getElementById('main-container');
         const paginationContainer = document.getElementById('pagination-container');
         const url = 'https://api.github.com/repos/zsxsw/github-issues-moments/issues/1/comments';
@@ -457,25 +418,15 @@
         let currentPage = 1;
         const itemsPerPage = 10;
 
-        // 添加GitHub Token认证
         const headers = new Headers();
         headers.append('Accept', 'application/vnd.github.v3+json');
         headers.append('User-Agent', 'Hugo Static Site Generator');
-        
-        // 从Cloudflare环境变量获取Token
         const githubToken = window.env?.GH_TOKEN || '';
-        if (githubToken) {
-            headers.append('Authorization', `token ${githubToken}`);
-        }
+        if (githubToken) headers.append('Authorization', `token ${githubToken}`);
 
         fetch(url, { headers })
             .then(r => {
-                if (!r.ok) {
-                    if (r.status === 403) {
-                        throw new Error('API请求受限，可能需要GitHub Token认证');
-                    }
-                    throw new Error('网络错误 ' + r.status);
-                }
+                if (!r.ok) throw new Error('网络错误 ' + r.status);
                 return r.json();
             })
             .then(list => {
@@ -483,143 +434,72 @@
                     container.innerHTML = '<p class="no-content">暂无动态</p>';
                     return;
                 }
-                
                 allComments = list.reverse();
                 initPagination(allComments.length);
                 displayPage(1);
             })
             .catch(err => {
-                let errorMsg = `⚠️ 无法获取动态：${err.message}`;
-                if (err.message.includes('API请求受限')) {
-                    errorMsg += '<br><br>解决方案：<br>1. 在Cloudflare Pages设置中添加GITHUB_TOKEN环境变量<br>2. 或使用后端代理API请求';
-                }
-                container.innerHTML = `<p class="error">${errorMsg}</p>`;
+                container.innerHTML = `<p class="error">⚠️ 无法获取动态：${err.message}</p>`;
             });
 
-        // 初始化分页
         function initPagination(totalItems) {
             const totalPages = Math.ceil(totalItems / itemsPerPage);
-            
             if (totalPages <= 1) {
                 paginationContainer.style.display = 'none';
                 return;
             }
-            
-            let paginationHTML = `
+            let html = `
                 <div class="pagination">
-                    <button class="page-btn prev-btn" onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
-                        上一页
-                    </button>
+                    <button class="page-btn prev-btn" onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>上一页</button>
             `;
-            
-            const maxVisiblePages = 5;
-            let startPage, endPage;
-            
-            if (totalPages <= maxVisiblePages) {
-                startPage = 1;
-                endPage = totalPages;
-            } else {
-                const half = Math.floor(maxVisiblePages / 2);
-                if (currentPage <= half + 1) {
-                    startPage = 1;
-                    endPage = maxVisiblePages;
-                } else if (currentPage >= totalPages - half) {
-                    startPage = totalPages - maxVisiblePages + 1;
-                    endPage = totalPages;
-                } else {
-                    startPage = currentPage - half;
-                    endPage = currentPage + half;
-                }
+            const max = 5, half = Math.floor(max / 2);
+            let start, end;
+            if (totalPages <= max) { start = 1; end = totalPages; }
+            else if (currentPage <= half + 1) { start = 1; end = max; }
+            else if (currentPage >= totalPages - half) { start = totalPages - max + 1; end = totalPages; }
+            else { start = currentPage - half; end = currentPage + half; }
+            for (let i = start; i <= end; i++) {
+                html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
             }
-            
-            for (let i = startPage; i <= endPage; i++) {
-                paginationHTML += `
-                    <button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">
-                        ${i}
-                    </button>
-                `;
-            }
-            
-            paginationHTML += `
-                    <button class="page-btn next-btn" onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
-                        下一页
-                    </button>
-                </div>
-            `;
-            
-            paginationContainer.innerHTML = paginationHTML;
+            html += `<button class="page-btn next-btn" onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>下一页</button></div>`;
+            paginationContainer.innerHTML = html;
             paginationContainer.style.display = 'block';
         }
 
-        // 显示指定页的内容
         function displayPage(page) {
-            const startIndex = (page - 1) * itemsPerPage;
-            const endIndex = Math.min(startIndex + itemsPerPage, allComments.length);
-            const pageComments = allComments.slice(startIndex, endIndex);
-            
-            const html = pageComments.map(c => `
+            const start = (page - 1) * itemsPerPage, end = Math.min(start + itemsPerPage, allComments.length);
+            const html = allComments.slice(start, end).map(c => `
                 <article class="moment-article">
                     <header class="article-header">
                         <img class="avatar" src="${c.user.avatar_url}" alt="${c.user.login}" onerror="this.src='https://avatars.githubusercontent.com/u/0?s=80&v=4'">
                         <div class="user-info">
-                            <div class="user-name">
-                                <a href="${c.user.html_url}" target="_blank">${c.user.login}</a>
-                            </div>
+                            <div class="user-name"><a href="${c.user.html_url}" target="_blank">${c.user.login}</a></div>
                             <div class="post-time">${formatTime(c.created_at)}</div>
                         </div>
                     </header>
                     <section class="moment-content">${marked.parse(c.body)}</section>
                 </article>
             `).join('');
-            
             container.innerHTML = `<div class="moments-feed">${html}</div>`;
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // 切换页面
-        function changePage(page) {
-            const totalPages = Math.ceil(allComments.length / itemsPerPage);
-            
-            if (page < 1 || page > totalPages || page === currentPage) {
-                return;
-            }
-            
+        window.changePage = function (page) {
+            const total = Math.ceil(allComments.length / itemsPerPage);
+            if (page < 1 || page > total || page === currentPage) return;
             currentPage = page;
             displayPage(page);
             initPagination(allComments.length);
-        }
+        };
 
-        // 全局暴露changePage函数
-        window.changePage = changePage;
-
-        // 格式化时间
         function formatTime(dateStr) {
-            const date = new Date(dateStr);
-            const now = new Date();
-            const diff = (now - date) / 1000;
-            
-            if (diff < 60) {
-                return '刚刚';
-            } else if (diff < 3600) {
-                return `${Math.floor(diff / 60)}分钟前`;
-            } else if (diff < 86400) {
-                return `${Math.floor(diff / 3600)}小时前`;
-            } else if (diff < 2592000) {
-                return `${Math.floor(diff / 86400)}天前`;
-            } else {
-                return date.toLocaleString('zh-CN', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: false
-                });
-            }
+            const date = new Date(dateStr), now = new Date(), diff = (now - date) / 1000;
+            if (diff < 60) return '刚刚';
+            if (diff < 3600) return `${Math.floor(diff / 60)}分钟前`;
+            if (diff < 86400) return `${Math.floor(diff / 3600)}小时前`;
+            if (diff < 2592000) return `${Math.floor(diff / 86400)}天前`;
+            return date.toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
         }
     </script>
-
-    <!-- 引入 marked 解析 markdown -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </body>
 </html>
