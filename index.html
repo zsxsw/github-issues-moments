@@ -2,9 +2,8 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>ZSX的瞬间</title>
+    <title>钟神秀的瞬间</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- 基础样式 -->
     <style>
         :root {
             --bg: #f5f5f5;
@@ -21,6 +20,7 @@
             --active-page-fg: #ffffff;
             --action-btn-color: #7d7d7d;
             --divider-color: #f0f0f0;
+            --header-image-height: 180px;
         }
         [data-theme="dark"] {
             --bg: #1a1a1a;
@@ -37,6 +37,7 @@
             --active-page-fg: #ffffff;
             --action-btn-color: #a0a0a0;
             --divider-color: #3a3a3a;
+            --header-image-height: 200px;
         }
         * {
             box-sizing: border-box;
@@ -96,10 +97,74 @@
             align-items: center;
             gap: 6px;
         }
+        /* 朋友圈头图 */
+        .header-image {
+            width: 100%;
+            height: var(--header-image-height);
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        .header-image::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('https://img.314926.xyz/images/2025/09/22/20250922193025414.webp') center/cover;
+            opacity: 0.9;
+        }
+        .header-title {
+            position: absolute;
+            left: 20px;
+            bottom: 20px;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            z-index: 2;
+        }
+        .header-info {
+            position: absolute;
+            right: 20px;
+            bottom: 20px;
+            color: white;
+            z-index: 2;
+            cursor: pointer;
+        }
+        .info-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .info-content {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 12px;
+            max-width: 80%;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            position: relative;
+        }
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+        }
         /* 主区域 */
         main {
             max-width: 600px;
-            margin: 20px auto;
+            margin: 0 auto;
             padding: 0 10px;
         }
         .moment-article {
@@ -137,7 +202,7 @@
             color: var(--time-color);
         }
         .moment-content {
-            padding: 0 15px 12px 15px;
+            padding: 0 15px 15px 15px;
             margin-left: 52px;
             margin-top: -10px;
             font-size: 15px;
@@ -161,6 +226,9 @@
             color: var(--fg);
             opacity: .8;
             font-size: 14px;
+            background: var(--comment-bg);
+            border-radius: 0 6px 6px 0;
+            padding: 8px 12px;
         }
         .moment-content code {
             background-color: var(--bg);
@@ -172,24 +240,6 @@
             max-width: 100%;
             border-radius: 6px;
             margin: 8px 0;
-        }
-        /* 文章底部操作栏 */
-        .article-actions {
-            display: flex;
-            padding: 8px 15px;
-            border-top: 1px solid var(--divider-color);
-            color: var(--action-btn-color);
-            font-size: 14px;
-        }
-        .action-btn {
-            flex: 1;
-            text-align: center;
-            padding: 6px 0;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-        .action-btn:hover {
-            color: var(--link);
         }
         .error, .no-content {
             text-align: center;
@@ -261,7 +311,6 @@
     <!-- 导航栏 -->
     <nav>
         <div class="nav-left">
-            <!-- GitHub 图标 -->
             <svg class="icon" viewBox="0 0 16 16">
                 <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38
                          0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01
@@ -270,13 +319,28 @@
                          1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0
                          3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
             </svg>
-            <span>ZSX的瞬间</span>
+            <span>钟神秀的瞬间</span>
         </div>
         <button id="theme-toggle" aria-label="切换主题">
             <span id="theme-icon">🌙</span>
             <span>切换主题</span>
         </button>
     </nav>
+
+    <!-- 朋友圈头图 -->
+    <div class="header-image">
+        <div class="header-title">即刻短文</div>
+        <div class="header-info" id="info-button">❗</div>
+    </div>
+
+    <!-- 信息模态框 -->
+    <div class="info-modal" id="info-modal">
+        <div class="info-content">
+            <div class="close-modal" id="close-modal">×</div>
+            <h3>钟神秀的瞬间记录</h3>
+            <p>这里收录了我的生活随笔、技术思考和灵感闪现。每一段文字都是时光的切片，记录当下的真实感受。</p>
+        </div>
+    </div>
 
     <!-- 主内容 -->
     <main id="main-container">
@@ -347,7 +411,26 @@
             }
         });
 
-        /* 2. 拉取 GitHub 评论并分页 */
+        /* 2. 信息模态框交互 */
+        const infoButton = document.getElementById('info-button');
+        const infoModal = document.getElementById('info-modal');
+        const closeModal = document.getElementById('close-modal');
+
+        infoButton.addEventListener('click', () => {
+            infoModal.style.display = 'flex';
+        });
+
+        closeModal.addEventListener('click', () => {
+            infoModal.style.display = 'none';
+        });
+
+        infoModal.addEventListener('click', (e) => {
+            if (e.target === infoModal) {
+                infoModal.style.display = 'none';
+            }
+        });
+
+        /* 3. 拉取 GitHub 评论并分页 */
         const container = document.getElementById('main-container');
         const paginationContainer = document.getElementById('pagination-container');
         const url = 'https://api.github.com/repos/zsxsw/github-issues-moments/issues/1/comments';
@@ -360,7 +443,7 @@
         headers.append('Accept', 'application/vnd.github.v3+json');
         headers.append('User-Agent', 'Hugo Static Site Generator');
         
-        // 从Cloudflare Pages环境变量获取Token
+        // 从Cloudflare环境变量获取Token
         const githubToken = window.env?.GH_TOKEN || '';
         if (githubToken) {
             headers.append('Authorization', `token ${githubToken}`);
@@ -369,7 +452,6 @@
         fetch(url, { headers })
             .then(r => {
                 if (!r.ok) {
-                    // 如果返回403错误，提示用户可能需要Token
                     if (r.status === 403) {
                         throw new Error('API请求受限，可能需要GitHub Token认证');
                     }
@@ -383,18 +465,12 @@
                     return;
                 }
                 
-                // 反转数组，使最新的评论显示在最前面
                 allComments = list.reverse();
-                
-                // 初始化分页
                 initPagination(allComments.length);
-                
-                // 显示第一页
                 displayPage(1);
             })
             .catch(err => {
                 let errorMsg = `⚠️ 无法获取动态：${err.message}`;
-                // 如果是403错误，提供更多帮助信息
                 if (err.message.includes('API请求受限')) {
                     errorMsg += '<br><br>解决方案：<br>1. 在Cloudflare Pages设置中添加GITHUB_TOKEN环境变量<br>2. 或使用后端代理API请求';
                 }
@@ -417,7 +493,6 @@
                     </button>
             `;
             
-            // 显示最多5个页码按钮
             const maxVisiblePages = 5;
             let startPage, endPage;
             
@@ -438,7 +513,6 @@
                 }
             }
             
-            // 添加页码按钮
             for (let i = startPage; i <= endPage; i++) {
                 paginationHTML += `
                     <button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">
@@ -476,17 +550,10 @@
                         </div>
                     </header>
                     <section class="moment-content">${marked.parse(c.body)}</section>
-                    <div class="article-actions">
-                        <div class="action-btn">👍 赞</div>
-                        <div class="action-btn">💬 评论</div>
-                        <div class="action-btn">🔄 转发</div>
-                    </div>
                 </article>
             `).join('');
             
             container.innerHTML = `<div class="moments-feed">${html}</div>`;
-            
-            // 滚动到顶部
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -510,7 +577,7 @@
         function formatTime(dateStr) {
             const date = new Date(dateStr);
             const now = new Date();
-            const diff = (now - date) / 1000; // 秒数差
+            const diff = (now - date) / 1000;
             
             if (diff < 60) {
                 return '刚刚';
