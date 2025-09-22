@@ -21,6 +21,7 @@
             --action-btn-color: #7d7d7d;
             --divider-color: #f0f0f0;
             --header-image-height: 180px;
+            --content-max-width: 600px;
         }
         [data-theme="dark"] {
             --bg: #1a1a1a;
@@ -97,14 +98,17 @@
             align-items: center;
             gap: 6px;
         }
-        /* 朋友圈头图 */
+        /* 朋友圈头图 - 电脑端优化 */
         .header-image {
             width: 100%;
+            max-width: var(--content-max-width);
             height: var(--header-image-height);
             background: linear-gradient(135deg, #6e8efb, #a777e3);
             position: relative;
             overflow: hidden;
-            margin-bottom: 15px;
+            margin: 0 auto 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
         }
         .header-image::before {
             content: "";
@@ -133,6 +137,20 @@
             color: white;
             z-index: 2;
             cursor: pointer;
+            font-size: 20px;
+        }
+        /* 移动端适配 */
+        @media (max-width: 640px) {
+            .header-image {
+                border-radius: 0;
+                margin-bottom: 10px;
+            }
+            :root {
+                --header-image-height: 160px;
+            }
+            [data-theme="dark"] {
+                --header-image-height: 180px;
+            }
         }
         .info-modal {
             display: none;
@@ -163,9 +181,10 @@
         }
         /* 主区域 */
         main {
-            max-width: 600px;
+            max-width: var(--content-max-width);
             margin: 0 auto;
             padding: 0 10px;
+            width: 100%;
         }
         .moment-article {
             background: var(--card);
@@ -278,7 +297,7 @@
         }
         /* Giscus 适配 */
         .giscus-container {
-            max-width: 600px;
+            max-width: var(--content-max-width);
             margin: 30px auto 0 auto;
             padding: 0 10px;
         }
