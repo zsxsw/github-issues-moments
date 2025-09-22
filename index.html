@@ -361,7 +361,7 @@
         headers.append('User-Agent', 'Hugo Static Site Generator');
         
         // 从Cloudflare Pages环境变量获取Token
-        const githubToken = window.env?.GITHUB_TOKEN || '';
+        const githubToken = window.env?.GH_TOKEN || '';
         if (githubToken) {
             headers.append('Authorization', `token ${githubToken}`);
         }
